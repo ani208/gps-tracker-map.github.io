@@ -1,0 +1,45 @@
+
+<html>
+<head>
+  <title>GPS Tracking</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhE27L9aWImby2_FtlssQ8VFfw_DdMH1Y&callback=initMap" 
+  async defer></script>
+  <script>
+    var map;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 0, lng: 0},
+        zoom: 8
+      });
+      updateMap();
+    }
+
+    function updateMap() {
+      // Fetch data from ThingSpeak
+      fetch('https://api.thingspeak.com/channels/2348186/feeds.json?results=1')
+        .then(response => response.json())
+        .then(data => {
+          var lat = parseFloat(data.feeds[0].field1);
+          var lng = parseFloat(data.feeds[0].field2);
+
+          var location = new google.maps.LatLng(lat, lng);
+          map.setCenter(location);
+          map.setZoom(15);
+
+          var marker = new google.maps.Marker({
+            position: location,
+            map: map,
+            title: 'Current Location'
+          });
+        })
+        .catch(error => console.error('Error:', error));
+
+      setTimeout(updateMap, 10000);  // Update every 10 seconds
+    }
+  </script>
+</head>
+<body>
+  <div id="map" style="height: 400px;"></div>
+</body>
+</html>
